@@ -3,6 +3,7 @@
  */
 public enum Category
     {
+        Priority,
         High,
         Medium,
         Low

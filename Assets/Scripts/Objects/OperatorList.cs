@@ -22,9 +22,19 @@ public class OperatorList
     {
         operatorList = new List<Operator>()
         {
-            new Operator("Jesse Horne",Category.High, new Availability(true, true, false, true, true, true, true, "Jesse is unavailable every OTHER Thursday")),
-            new Operator("Cooper Johnson", Category.High, new Availability(true, false, true, true, false, true, true)),
-            new Operator("Mark Frezell",Category.High, new Availability(false, true, true, true, true, true, false))
+            new Operator("Jesse Horne",Category.Priority, new Availability(true, true, false, true, true, true, true, "Jesse is unavailable every OTHER Thursday")),
+            new Operator("Cooper Johnson", Category.Priority, new Availability(true, false, true, true, false, true, true)),
+            new Operator("Mark Frezell",Category.Priority, new Availability(false, true, true, true, true, true, false)),
+            new Operator("Emily Frezell",Category.High, new Availability(false, false, true, true, true, true, true)),
+            new Operator("Brad Borkristl",Category.High, new Availability(true, true, true, false, true, true, false)),
+            new Operator("William Kanuka",Category.High, new Availability(true, true, true, true, false, false, true)),
+            new Operator("David Walker",Category.Medium, new Availability(true, false, true, true, true, true, false)),
+            new Operator("Connor Schumacher",Category.High, new Availability(false, true, true, true, false, true, true)),
+            new Operator("Niels Hendriks",Category.High, new Availability(true, true, false, false, false, true, true)),
+            new Operator("Angelo Pastega",Category.High, new Availability(false, true, false, true, true, true, true)),
+            new Operator("Nathan Sawatzky",Category.Low, new Availability(true, true, false, false, true, true, true)),
+            new Operator("Dawson Kordikowski",Category.Low, new Availability(false, true, true, false, true, true, true)),
+            new Operator("Cody David",Category.High, new Availability(true, true, true, true, true, false, true)),
         };
     }
 
@@ -50,12 +60,6 @@ public class OperatorList
 
         return siteOperator;
 
-    }
-
-    public Operator pullOperator(int i)
-    {
-        //returns and removes an operator by their position (using the overloaded (string name) function)
-        return pullOperator(operatorList[i].getName());
     }
 
     /**
@@ -116,6 +120,21 @@ public class OperatorList
     }
 
     /**
+     * Returns all the Operators that are left in the list (for seeing who is unavailable)
+     */
+    public List<Operator> getRemainingOperators()
+    {
+        List<Operator> remaining = new List<Operator>();
+
+        foreach(Operator op in operatorList)
+        {
+            remaining.Add(op);
+        }
+
+        return remaining;
+    }
+
+    /**
      * Pulls a random operator of a certain category
      * by generating a random number between 0 and size of category list
      * 
@@ -129,9 +148,8 @@ public class OperatorList
         if (size > 0) {
             //creating random number between 0 and size
             int randomNumber = new System.Random().Next(0, size);
-            Debug.Log("Random Number: " + randomNumber);
             //pulls the operator of a random index
-            return pullOperator(randomNumber);
+            return pullOperator(operatorsByCat[randomNumber].getName());
         }
         else
             return null;
@@ -142,11 +160,11 @@ public class OperatorList
      */
     public string toString()
     {
-        string message = "Updated Site List\n";
+        string message = "Updated Site List ("+operatorList.Count+")\n";
 
         for(int i=0; i<operatorList.Count; i++)
         {
-            message += "" + operatorList[i].getName() + " " + operatorList[i].getCategory()+"\n";
+            message += operatorList[i].getName() + " of " + operatorList[i].getCategory()+" || ";
         }
 
         return message;

@@ -1,23 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class ScheduleList : MonoBehaviour 
 {
     //Detail View Section
-    public GameObject SiteNameObject;//Text - TextMeshPro
-    public GameObject OperatorTextObject;
-    public GameObject DateObject;
+    public TMP_Text SiteNameObject;//Text - TextMeshPro
+    public TMP_Text OperatorTextObject;
+    public TMP_Text DateObject;
+
+    //the content box for available/unavailable operators
+    public GameObject availOpsContent;
 
     //Pins
-    public GameObject CranstonMarket, DeerfootMeadows1, DeerfootMeadows2, DeerValley, HeritageMeadows, McKenzie, MillrisePlaza,
+    public Button CranstonMarket, DeerValley, DeerfootMeadows1, DeerfootMeadows2, HeritageMeadows, McKenzie, MillrisePlaza,
         RichmondRoad, Riverbend, Seton, ShawnessyGasBar, ShawnessyTowneCentre, SignalHill, SouthTrailCrossing, SouthcentreMall,
-        SouthlandMacleod, Westhills;
+        SouthlandMacleod, WestHills;
 
     public Sprite OrangePin, GreenPin, BluePin;
 
     private static List<Schedule> scheduleList = new List<Schedule>();
-    
+
+    private List<Operator> availableOperators = new List<Operator>();
+    private List<Operator> unavailableOperators = new List<Operator>();
+
     /**
      * Adds a schedule
      */
@@ -30,11 +38,10 @@ public class ScheduleList : MonoBehaviour
      * Gets the Schedule at a specific date
      * if not found, returns null
      */
-    public Schedule get(DateTime date)
+    public static Schedule getScheduleFrom(DateTime date)
     {
         for(int i=0; i<scheduleList.Count; i++)
         {
-            Debug.Log("COMPARING DATES: " + scheduleList[i].getDate() + " AND " + date);
             if(scheduleList[i].getDate() == date)//comparing the enumerator of Date inside of one schedule and another
             {
                 return scheduleList[i];
@@ -58,10 +65,13 @@ public class ScheduleList : MonoBehaviour
         //gets SelectedTime
         DateTime selectedDate = SelectedDate.getSelectedDate();
 
-        //gets Schedule from scheduleList that matches the selectedDate
-        Schedule schedule = get(selectedDate);
+        Debug.Log("Populating Map with "+selectedDate.Month+"/"+selectedDate.Day+"/"+selectedDate.Year+"'s schedule");
 
-        Debug.Log("DATE COMPARE: Schedule - " + schedule.getDate() + " TO SelectedDate - " + selectedDate);
+        //gets Schedule from scheduleList that matches the selectedDate
+        Schedule schedule = getScheduleFrom(selectedDate);
+
+        //reseting the color of all the pins
+        setAllPinsOrange();
 
         if (schedule != null) {
             Dictionary<Site, Operator> siteOperatorPair = schedule.getPairs();//getting the Dictionary from the Schedule
@@ -70,58 +80,65 @@ public class ScheduleList : MonoBehaviour
             //changing all the Pins that have pairs (operators) to green pins
             foreach (Site key in keys)
             {//iterating through all of the keys in the Dictionary
-                string siteNameString = siteOperatorPair[key].getName();//name of Site
+
+                //getting all of the Sites and Operators to log
+                Debug.Log("Site: " + key.getName() + " Operator: " + siteOperatorPair[key].getName());
+
+                string siteNameString = key.getName();//name of Site
 
                 //if the string matches a Site name change its sprite to GreenPin
                 switch (siteNameString)
                 {
                     case "Cranston Market":
-                        CranstonMarket.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        CranstonMarket.image.sprite = GreenPin;
                         break;
                     case "Deer Valley":
-                        DeerValley.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        DeerValley.image.sprite = GreenPin;
                         break;
-                    case "Deerfoot Meadows I":
-                        DeerfootMeadows1.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                    case "Deerfoot Meadows 1":
+                        DeerfootMeadows1.image.sprite = GreenPin;
                         break;
-                    case "Deerfoot Meadows II":
-                        DeerfootMeadows2.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                    case "Deerfoot Meadows 2":
+                        DeerfootMeadows2.image.sprite = GreenPin;
                         break;
                     case "Heritage Meadows":
-                        HeritageMeadows.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        HeritageMeadows.image.sprite = GreenPin;
                         break;
                     case "McKenzie":
-                        McKenzie.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        McKenzie.image.sprite = GreenPin;
                         break;
                     case "Millrise Plaza":
-                        MillrisePlaza.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        MillrisePlaza.image.sprite = GreenPin;
                         break;
                     case "Richmond Road":
-                        RichmondRoad.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        RichmondRoad.image.sprite = GreenPin;
                         break;
                     case "Riverbend":
-                        Riverbend.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        Riverbend.image.sprite = GreenPin;
                         break;
                     case "Seton":
-                        Seton.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        Seton.image.sprite = GreenPin;
                         break;
                     case "Shawnessy Gas Bar":
-                        ShawnessyGasBar.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        ShawnessyGasBar.image.sprite = GreenPin;
                         break;
                     case "Shawnessy Towne Centre":
-                        ShawnessyTowneCentre.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        ShawnessyTowneCentre.image.sprite = GreenPin;
                         break;
                     case "Signal Hill":
-                        SignalHill.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        SignalHill.image.sprite = GreenPin;
                         break;
                     case "South Trail Crossing":
-                        SouthTrailCrossing.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        SouthTrailCrossing.image.sprite = GreenPin;
+                        break;
+                    case "Southland Macleod":
+                        SouthlandMacleod.image.sprite = GreenPin;
                         break;
                     case "Southcentre Mall":
-                        SouthcentreMall.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        SouthcentreMall.image.sprite = GreenPin;
                         break;
                     case "West Hills":
-                        Westhills.GetComponent<SpriteRenderer>().sprite = GreenPin;
+                        WestHills.image.sprite = GreenPin;
                         break;
                     default:
                         Debug.LogError("NO SITE OF NAME: " + siteNameString);
@@ -132,27 +149,230 @@ public class ScheduleList : MonoBehaviour
         else //the schedule is NULL
         {
             //set all pins to ORANGE
-            CranstonMarket.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            DeerValley.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            DeerfootMeadows1.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            DeerfootMeadows2.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            HeritageMeadows.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            McKenzie.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            MillrisePlaza.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            RichmondRoad.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            Riverbend.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            Seton.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            ShawnessyGasBar.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            ShawnessyTowneCentre.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            SignalHill.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            SouthTrailCrossing.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            SouthcentreMall.GetComponent<SpriteRenderer>().sprite = OrangePin;
-            Westhills.GetComponent<SpriteRenderer>().sprite = OrangePin;
-
-            //Remove data from detail views
-            SiteNameObject.GetComponent<TextMesh>().text = "NO SITE SELECTED";
-            OperatorTextObject.GetComponent<TextMesh>().text = "NO OPERATOR SELECTED";
-            DateObject.GetComponent<TextMesh>().text = selectedDate.Month + " " + selectedDate.Day;
+            setAllPinsOrange();
         }
+
+        //setting the information for the Site Detail View
+        Site selectedSite = SelectedSite.getSelectedSite();
+        //Remove data from detail views
+
+        if (schedule != null && selectedSite != null)//if there is a schedule and selected Site
+        {
+            //set selectedSite name
+            SiteNameObject.text = "" + selectedSite.getName();
+            
+            //gets operator at site of name
+            Operator op = schedule.getOpinSite(selectedSite.getName());
+            if (op != null)//if an operator was found
+                //set operator name
+                OperatorTextObject.text = "Operator : " + op.getName();
+            else
+                OperatorTextObject.text = "Operator : NONE";
+        }
+        else if(selectedSite != null)//if there is date but no schedule
+        {
+            SiteNameObject.text = "" + selectedSite.getName();//set the selectedsite
+            OperatorTextObject.text = "Operator : N/A";//no operator
+        }
+        else//no selectedSite or schedule
+        {
+            SiteNameObject.text = "No Site Selected";//no selectedSite
+            OperatorTextObject.text = "Operator : N/A";
+        }
+
+        DateObject.text = selectedDate.ToString("ddd, MMM") + " " + selectedDate.Day;
+
+        setBluePin();//sets the blue pin based on the SelectedSite
+                     //this is done at the end so that it is not overwritten to green or orange
+
+        updateAvailableOperators(schedule);
+        displayAvailOperators();//Displays all the Available and Unavailable Operators
+
+    }
+
+    /**
+     * Sets the blue pin into the selected location
+     */
+    private void setBluePin()
+    {
+        if (SelectedSite.getSelectedSite() != null)//if there is no selected site, don't add a blue pin
+        {
+            Site selectedSite = SelectedSite.getSelectedSite();
+            Debug.Log("setBluePin(): selectedSite.getName() = '" + selectedSite.getName() + "'");
+
+            //based on the selected Site's name, get the sprite to BluePin
+            switch (selectedSite.getName())
+            {
+                case "Cranston Market":
+                    CranstonMarket.image.sprite = BluePin;
+                    break;
+                case "Deer Valley":
+                    DeerValley.image.sprite = BluePin;
+                    break;
+                case "Deerfoot Meadows 1":
+                    DeerfootMeadows1.image.sprite = BluePin;
+                    break;
+                case "Deerfoot Meadows 2":
+                    DeerfootMeadows2.image.sprite = BluePin;
+                    break;
+                case "Heritage Meadows":
+                    HeritageMeadows.image.sprite = BluePin;
+                    break;
+                case "McKenzie":
+                    McKenzie.image.sprite = BluePin;
+                    break;
+                case "Millrise Plaza":
+                    MillrisePlaza.image.sprite = BluePin;
+                    break;
+                case "Richmond Road":
+                    RichmondRoad.image.sprite = BluePin;
+                    break;
+                case "Riverbend":
+                    Riverbend.image.sprite = BluePin;
+                    break;
+                case "Seton":
+                    Seton.image.sprite = BluePin;
+                    break;
+                case "Shawnessy Gas Bar":
+                    ShawnessyGasBar.image.sprite = BluePin;
+                    break;
+                case "Shawnessy Towne Centre":
+                    ShawnessyTowneCentre.image.sprite = BluePin;
+                    break;
+                case "Signal Hill":
+                    SignalHill.image.sprite = BluePin;
+                    break;
+                case "South Trail Crossing":
+                    SouthTrailCrossing.image.sprite = BluePin;
+                    break;
+                case "Southland Macleod":
+                    SouthlandMacleod.image.sprite = BluePin;
+                    break;
+                case "Southcentre Mall":
+                    SouthcentreMall.image.sprite = BluePin;
+                    break;
+                case "West Hills":
+                    WestHills.image.sprite = BluePin;
+                    break;
+                default:
+                    Debug.LogError("NO SITE OF NAME: " + selectedSite.getName());
+                    break;
+            }
+        }
+    }
+
+    /**
+     * This method is when switching dates (reseting all of the pins to empty)
+     * whether there is a schedule or not
+     */
+    private void setAllPinsOrange()
+    {
+        CranstonMarket.image.sprite = OrangePin;
+        DeerValley.image.sprite = OrangePin;
+        DeerfootMeadows1.image.sprite = OrangePin;
+        DeerfootMeadows2.image.sprite = OrangePin;
+        HeritageMeadows.image.sprite = OrangePin;
+        McKenzie.image.sprite = OrangePin;
+        MillrisePlaza.image.sprite = OrangePin;
+        RichmondRoad.image.sprite = OrangePin;
+        Riverbend.image.sprite = OrangePin;
+        Seton.image.sprite = OrangePin;
+        ShawnessyGasBar.image.sprite = OrangePin;
+        ShawnessyTowneCentre.image.sprite = OrangePin;
+        SignalHill.image.sprite = OrangePin;
+        SouthTrailCrossing.image.sprite = OrangePin;
+        SouthlandMacleod.image.sprite = OrangePin;
+        SouthcentreMall.image.sprite = OrangePin;
+        WestHills.image.sprite = OrangePin;
+    }
+
+    private void updateAvailableOperators(Schedule schedule)
+    {
+        //if there actually is a schedule
+        if (schedule != null)
+        {
+            availableOperators = schedule.getAvailableOperators();
+            unavailableOperators = schedule.getUnavailableOperators();
+        }
+    }
+
+    /**
+     * Displays the names of the unavailable operators
+     */
+    private void displayAvailOperators()
+    {
+        //destroying any displayed operators here
+        foreach (Transform child in availOpsContent.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+
+        Debug.Log("Displaying Available Operators \\ Avail: " + availableOperators.Count + " \\ Unavail: " + unavailableOperators.Count + ".");
+
+        //Add "Available Ops" Title
+        addComponentWithText("Available Operators", true, availOpsContent);//add text with BOLD (title)
+
+        //IF there are any available operators
+        if (availableOperators.Count > 0)
+        {
+            //Loop through the remainder of the operators
+            for (int i = 0; i < availableOperators.Count; i++)
+            {
+                addComponentWithText(availableOperators[i].getName(), false, availOpsContent);
+            }
+        }
+        else
+        {
+            //Add "No Available Operators" Text
+            addComponentWithText("No Available Operators", false, availOpsContent);
+        }
+
+        //Add "Unavailable Operators" Title
+        addComponentWithText("Unavailable Operators", true, availOpsContent);//add text with BOLD (title)
+
+        //IF there are any unavailable operators
+        if (availableOperators.Count > 0)
+        {
+            //Loop through the remainder of the operators
+            for (int i = 0; i < unavailableOperators.Count; i++)
+            {
+                addComponentWithText(unavailableOperators[i].getName(), false, availOpsContent);
+            }
+        }
+        else
+        {
+            //Add "No Unavailable Operators" Text
+            addComponentWithText("No Unavailable Operators", false, availOpsContent);
+        }
+    }
+
+    public void addComponentWithText(string msg, bool title, GameObject parent)
+    {
+        GameObject availTitle = new GameObject();//creating a new GameObject
+        Text text = availTitle.AddComponent<Text>();//adding a Text component
+        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");//arial font
+        text.fontSize = 10;//setting the fontsize
+        text.color = Color.black;//changing color
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+
+        if (title)
+            text.alignment = TextAnchor.MiddleCenter;//centered for titles
+        else
+            text.alignment = TextAnchor.MiddleLeft;//left justified for regular
+
+        //adding bold for title & setting title
+        if (title)
+            text.text = "<b>" + msg + "</b>";//setting the text
+        else
+            text.text = "   " + msg;
+
+        availTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(150.35f, 18.45f);//setting the width and height of the Rect Transform
+
+        availTitle.transform.parent = parent.transform;//adding the parent to availTitle
+        availTitle.transform.position = new Vector3(transform.position.x, transform.position.y, 0);//change z to 0
+        availTitle.transform.localScale = new Vector3(1, 1, 1);//scale to 1
+
+        Debug.Log("Added " + availTitle.name + " to " + parent.name + ".");
     }
 }
