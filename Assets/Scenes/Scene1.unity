@@ -6666,6 +6666,7 @@ MonoBehaviour:
   SiteNameObject: {fileID: 1850548231}
   OperatorTextObject: {fileID: 129898509}
   DateObject: {fileID: 1523329255}
+  availOpsContent: {fileID: 460225179}
   CranstonMarket: {fileID: 975999672}
   DeerValley: {fileID: 481621465}
   DeerfootMeadows1: {fileID: 522834036}
@@ -7371,7 +7372,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54244d09eaabaf245b1ab929eb628320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  availOpsContent: {fileID: 460225179}
 --- !u!1 &1000313953
 GameObject:
   m_ObjectHideFlags: 0

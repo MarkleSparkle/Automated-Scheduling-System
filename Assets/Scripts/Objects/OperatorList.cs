@@ -22,19 +22,20 @@ public class OperatorList
     {
         operatorList = new List<Operator>()
         {
-            new Operator("Jesse Horne",Category.Priority, new Availability(true, true, false, true, true, true, true, "Jesse is unavailable every OTHER Thursday")),
+            //AVAILABILITY                                                      MON  TUES   WED   THU   FRI   SAT   SUN
+            new Operator("Jesse Horne",Category.Priority,     new Availability(true, true, false, true, true, true, true, "Jesse is unavailable every OTHER Thursday")),
             new Operator("Cooper Johnson", Category.Priority, new Availability(true, false, true, true, false, true, true)),
-            new Operator("Mark Frezell",Category.Priority, new Availability(false, true, true, true, true, true, false)),
-            new Operator("Emily Frezell",Category.High, new Availability(false, false, true, true, true, true, true)),
-            new Operator("Brad Borkristl",Category.High, new Availability(true, true, true, false, true, true, false)),
-            new Operator("William Kanuka",Category.High, new Availability(true, true, true, true, false, false, true)),
-            new Operator("David Walker",Category.Medium, new Availability(true, false, true, true, true, true, false)),
-            new Operator("Connor Schumacher",Category.High, new Availability(false, true, true, true, false, true, true)),
-            new Operator("Niels Hendriks",Category.High, new Availability(true, true, false, false, false, true, true)),
-            new Operator("Angelo Pastega",Category.High, new Availability(false, true, false, true, true, true, true)),
-            new Operator("Nathan Sawatzky",Category.Low, new Availability(true, true, false, false, true, true, true)),
-            new Operator("Dawson Kordikowski",Category.Low, new Availability(false, true, true, false, true, true, true)),
-            new Operator("Cody David",Category.High, new Availability(true, true, true, true, true, false, true)),
+            new Operator("Mark Frezell",Category.Priority,    new Availability(false, true, true, true, true, true, false)),
+            new Operator("Emily Frezell",Category.High,       new Availability(false, false, true, true, true, true, true)),
+            new Operator("Brad Borkristl",Category.High,      new Availability(true, true, true, false, true, true, false)),
+            new Operator("William Kanuka",Category.High,      new Availability(true, true, true, true, false, false, true)),
+            new Operator("David Walker",Category.Medium,      new Availability(true, false, true, true, true, true, false)),
+            new Operator("Connor Schumacher",Category.High,   new Availability(false, true, true, true, false, true, true)),
+            new Operator("Niels Hendriks",Category.High,      new Availability(true, true, false, false, false, true, true)),
+            new Operator("Angelo Pastega",Category.High,      new Availability(false, true, false, true, true, true, true)),
+            new Operator("Nathan Sawatzky",Category.Low,      new Availability(true, true, false, false, true, true, true)),
+            new Operator("Dawson Kordikowski",Category.Low,   new Availability(false, true, true, false, true, true, true)),
+            new Operator("Cody David",Category.High,          new Availability(true, true, true, true, true, false, true)),
         };
     }
 
@@ -140,19 +141,32 @@ public class OperatorList
      * 
      * If there is no operators of a certain category returns null
      */
-    public Operator pullRandomOperatorOf(Category category)
+    public Operator pullRandomOperatorOf(DayOfWeek dayOfWeek, Category category)
     {
         List<Operator> operatorsByCat = getOperatorsByCategory(category);
         int size = operatorsByCat.Count;
 
         if (size > 0) {
-            //creating random number between 0 and size
-            int randomNumber = new System.Random().Next(0, size);
-            //pulls the operator of a random index
-            return pullOperator(operatorsByCat[randomNumber].getName());
-        }
-        else
+
+            //goes through all of the operators of this category
+            for(int i=0; i<operatorsByCat.Count; i++)
+            {
+                //if the first found is available
+                if (operatorsByCat[i].isAvailable(dayOfWeek))
+                {
+                    //return it to the scheduler
+                    return pullOperator(operatorsByCat[i].getName());
+                }
+            }
+
+            //if none of the operators from the remainder of the category, return null
+            //this will indicate that there are no more operators that are available of this list
             return null;
+
+        }
+
+        //if size is not zero, or no available operators are found, return null
+        return null;
     }
 
     /**

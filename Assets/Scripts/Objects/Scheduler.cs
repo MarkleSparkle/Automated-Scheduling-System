@@ -13,8 +13,8 @@ public class Scheduler : MonoBehaviour
     private SiteList siteList;
     private OperatorList operatorList;
     private Dictionary<Site, Operator> siteOperatorPair;
-    private List<Operator> availableOperators = new List<Operator>();
-    private List<Operator> unavailableOperators = new List<Operator>();
+    private List<Operator> availableOperators;
+    private List<Operator> unavailableOperators;
     private DateTime date;
 
 
@@ -28,10 +28,13 @@ public class Scheduler : MonoBehaviour
     {
         //date is up to date with SelectedDate
 
-        //Instantiating new Operator and Site Lists
+        //Instantiating new objects
         operatorList = new OperatorList();
         siteList = new SiteList();
         siteOperatorPair = new Dictionary<Site, Operator>();
+        availableOperators = new List<Operator>();
+        unavailableOperators = new List<Operator>();
+
 
         /* Starts with Jesse Horne's Avaiability */
         Site richmondRoad = siteList.pullSite("Richmond Road");
@@ -43,58 +46,39 @@ public class Scheduler : MonoBehaviour
         }
         else //if Jesse is NOT available on a certain day, Richmond Road is left on the table
         {
-            unavailableOperators.Add(jesseHorne);
+            operatorList.addOperator(jesseHorne);//adding Jesse back to put into list of unavailable
             siteList.addSite(richmondRoad);//adding Richmond Road back into the list (for grabs)
         }
-
-        Debug.Log(operatorList.toString());
-
 
         /* Starting Priority Matching */
 
         Site site = getNextSite();
-        Operator op = getNextOperator();
+        Operator op = getNextOperator(date.DayOfWeek);//gets next available operator
 
-        //while neither the site NOR the operator are null (meaning there are still sites and operators of this level.
+        //while neither the site NOR the operator are null (meaning there are still sites and operators)
         while(site != null && op != null)
         {
+            Debug.Log("<b>"+op.getName()+" :: "+site.getName()+"</b>");
             pairSiteAndOperator(site,op);
             site = getNextSite();
-            op = getNextOperator();
+            op = getNextOperator(date.DayOfWeek);//gets next available operator
             //get the next site and operator
         }
         //number of Sites OR Operators have run out
 
-        if (op != null)//if there are still Operators
-        {
-            while (op != null)//until there are no more operators 
-            {
-                //add the remaining operators to their respected lists
-                if (op.isAvailable(date.DayOfWeek))
-                    availableOperators.Add(op);
-                else
-                    unavailableOperators.Add(op);
-
-                op = getNextOperator();
-            }
-        }
-        else //if there are still Sites
-        {
-            //do nothing (they will show as empty [orange] by default)
-        }
-
+        //gets the remaining operators in the OperatorList (now that the unavailable ones are the only ones left)
         Debug.Log(operatorList.getRemainingOperators().Count + " remaining operators after generation.");
+        unavailableOperators = operatorList.getRemainingOperators();
+
 
         //Debug Loop
         string msg = "Unavailable Operators -> ";
         foreach(Operator oper in unavailableOperators)
         {
-            msg += unavailableOperators[0].getName()+", ";
+            msg += oper.getName()+"="+oper.isAvailable(date.DayOfWeek)+", ";
         }
         Debug.Log(msg);
         //End Debug Loop
-
-
     }
 
     /**
@@ -128,20 +112,20 @@ public class Scheduler : MonoBehaviour
      * Returns a RANDOM Operator in an order of Category
      * IE, it will never return a Medium Operator if there are still High Operators available
      */
-    private Operator getNextOperator()
+    private Operator getNextOperator(DayOfWeek dayOfWeek)
     {
         //gets Operator of Priority Category
 
-        Operator op = operatorList.pullRandomOperatorOf(Category.Priority);
+        Operator op = operatorList.pullRandomOperatorOf(dayOfWeek, Category.Priority);
         if (op == null)
         {
-            op = operatorList.pullRandomOperatorOf(Category.High);
+            op = operatorList.pullRandomOperatorOf(dayOfWeek, Category.High);
             if (op == null)
             {
-                op = operatorList.pullRandomOperatorOf(Category.Medium);//pull a Medium Operator
+                op = operatorList.pullRandomOperatorOf(dayOfWeek, Category.Medium);//pull a Medium Operator
                 if (op == null)//if no Medium Operator
                 {
-                    op = operatorList.pullRandomOperatorOf(Category.Low);//pull Low Operator
+                    op = operatorList.pullRandomOperatorOf(dayOfWeek, Category.Low);//pull Low Operator
                     if (op == null)//if no Low 
                     {
                         return null;
@@ -158,7 +142,6 @@ public class Scheduler : MonoBehaviour
      */
     private void pairSiteAndOperator(Site site, Operator employee)
     {
-        Debug.Log("Pairing "+site.getName()+" to "+employee.getName());
         siteOperatorPair.Add(site, employee);
 
     }

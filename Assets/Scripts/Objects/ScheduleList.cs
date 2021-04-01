@@ -82,8 +82,6 @@ public class ScheduleList : MonoBehaviour
             {//iterating through all of the keys in the Dictionary
 
                 //getting all of the Sites and Operators to log
-                Debug.Log("Site: " + key.getName() + " Operator: " + siteOperatorPair[key].getName());
-
                 string siteNameString = key.getName();//name of Site
 
                 //if the string matches a Site name change its sprite to GreenPin
@@ -198,7 +196,6 @@ public class ScheduleList : MonoBehaviour
         if (SelectedSite.getSelectedSite() != null)//if there is no selected site, don't add a blue pin
         {
             Site selectedSite = SelectedSite.getSelectedSite();
-            Debug.Log("setBluePin(): selectedSite.getName() = '" + selectedSite.getName() + "'");
 
             //based on the selected Site's name, get the sprite to BluePin
             switch (selectedSite.getName())
@@ -291,8 +288,14 @@ public class ScheduleList : MonoBehaviour
         //if there actually is a schedule
         if (schedule != null)
         {
+            Debug.Log("<b>Updating Available Operators</b>");
             availableOperators = schedule.getAvailableOperators();
             unavailableOperators = schedule.getUnavailableOperators();
+        }
+        else
+        { //if there is no schedule reset available/unavailable to null (as not to remain from a previous schedule)
+            availableOperators = new List<Operator>();
+            unavailableOperators = new List<Operator>();
         }
     }
 
@@ -332,7 +335,7 @@ public class ScheduleList : MonoBehaviour
         addComponentWithText("Unavailable Operators", true, availOpsContent);//add text with BOLD (title)
 
         //IF there are any unavailable operators
-        if (availableOperators.Count > 0)
+        if (unavailableOperators.Count > 0)
         {
             //Loop through the remainder of the operators
             for (int i = 0; i < unavailableOperators.Count; i++)
@@ -369,10 +372,10 @@ public class ScheduleList : MonoBehaviour
 
         availTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(150.35f, 18.45f);//setting the width and height of the Rect Transform
 
-        availTitle.transform.parent = parent.transform;//adding the parent to availTitle
+        availTitle.transform.SetParent(parent.transform);//adding the parent to availTitle
         availTitle.transform.position = new Vector3(transform.position.x, transform.position.y, 0);//change z to 0
         availTitle.transform.localScale = new Vector3(1, 1, 1);//scale to 1
 
-        Debug.Log("Added " + availTitle.name + " to " + parent.name + ".");
+        Debug.Log("Added " + text.text + " to " + parent.name + ".");
     }
 }

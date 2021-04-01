@@ -124,7 +124,6 @@ public class SiteList
     {
         List<Site> sitesByCat = getSitesByCategory(category);
         int size = sitesByCat.Count;
-        Debug.Log("Getting sites of " + category + " (" + size + " remaining).");
 
         if (size > 0)
         {
